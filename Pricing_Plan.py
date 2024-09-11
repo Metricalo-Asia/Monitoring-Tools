@@ -121,7 +121,7 @@ def load_urls_from_csv(csv_filename):
 # Function to save the results to Excel
 def save_results_to_excel(results, output_filename):
     df = pd.DataFrame(results)
-    df.to_excel(output_filename, index=False)
+    df.to_csv(output_filename, index=False)
 
 # Main function
 def main():
@@ -151,7 +151,7 @@ def main():
         driver.quit()
 
     # Save all results to an Excel file
-    output_filename = "pricing_results.xlsx"  # Replace with desired output filename
+    output_filename = "pricing_results.csv"  # Replace with desired output filename
     save_results_to_excel(all_results, output_filename)
     print(f"Results saved to {output_filename}")
 
