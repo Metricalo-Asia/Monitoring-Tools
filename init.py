@@ -4,6 +4,8 @@ import pandas as pd
 import requests
 from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup
+
+from lib.smtpService import send_email_with_attachment
 from lib.telegram import send_telegram_notification, list_chat_ids
 
 # Function to extract product_id from a URL (specifically the href of the signup button)
@@ -143,3 +145,5 @@ if __name__ == "__main__":
 
 # list_chat_ids()
 # send_telegram_notification("pricing_plan.csv",'There is an issue found. The latest research found ')
+
+# send_email_with_attachment("Latest scan report from Monitoring tools", "templates/email/regular-report.html", "pricing_plan.csv")
