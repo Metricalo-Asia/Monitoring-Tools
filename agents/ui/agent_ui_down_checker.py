@@ -84,8 +84,8 @@ class AgentUIDownChecker:
         result_dict = {
             "Merchant": self.merchant_name,
             "URL": self.url,
-            "Webshop Status Code": self.response.status_code,
-            "Webshop Status": AgentUIDownChecker.get_status_text(self.response.status_code),
+            "Status Code": self.response.status_code,
+            "Status": AgentUIDownChecker.get_status_text(self.response.status_code),
         }
 
         return [result_dict]

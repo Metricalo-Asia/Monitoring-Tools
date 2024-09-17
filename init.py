@@ -13,15 +13,16 @@ from lib.telegram import send_telegram_notification, list_chat_ids
 
 
 # Function to load URLs from a CSV file
-def load_urls_from_csv(csv_filename):
-    urls = []
-    with open(csv_filename, newline='') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            if len(row) == 2:
-                merchant_name, url = row
-                urls.append((merchant_name, url))
-    return urls
+def load_urls_from_csv(csv_filename, chunksize=10000):
+    # Create an empty DataFrame to append chunks
+    full_data = pd.DataFrame()
+
+    # Read the CSV file in chunks
+    for chunk in pd.read_csv(csv_filename, chunksize=chunksize):
+        # Append each chunk to the DataFrame
+        full_data = pd.concat([full_data, chunk], ignore_index=True)
+
+    return full_data
 
 
 # Function to save the results to Excel
@@ -29,17 +30,21 @@ def save_results_to_excel(results, output_filename):
     df = pd.DataFrame(results)
     df.to_excel(output_filename, index=False)
 
+
 # Main function
 def main():
-    # Read the list of URLs from a CSV file
+    # Read the list of URLs and related data from the CSV file
     csv_filename = "pricing_plan.csv"  # Replace with your actual CSV file
-    urls = load_urls_from_csv(csv_filename)
+    output_filename = "results.xlsx"  # Replace with desired output filename
+    full_data = load_urls_from_csv(csv_filename)  # Now returns a DataFrame with all columns
 
     all_results = []
 
-    # Process each URL
-    for merchant_name, url in urls:
-        merged_results = [];
+    # Process each row in the DataFrame
+    for index, row in full_data.iterrows():
+        merchant_name = row['Company name']
+        url = row['URL']
+        merged_results = []
         response = requests.get(url)
 
         results_status = AgentUIDownChecker(merchant_name, url, response).process()
@@ -50,16 +55,19 @@ def main():
         else:
             results_price_plan = AgentUIPricePlan(merchant_name, url, response).process()
             results_languages = AgentUILanguages(merchant_name, url, response).process()
-            if results_price_plan and results_languages and results_status:  # Check if both arrays are not empty
-                merged_dict = {**results_price_plan[0], **results_languages[0], **results_status[0]}  # Merging the two dictionaries
-                # Create a new array with the merged dictionary
-                merged_results = [merged_dict]
+
+            # Ensure we process all items in results_price_plan, not just the first one
+            for price_plan in results_price_plan:
+                if results_languages and results_status:
+                    # Merging dictionaries for each price plan and combining with the language and status info
+                    merged_dict = {**price_plan, **results_languages[0], **results_status[0]}  # Merging dictionaries
+                    merged_results.append(merged_dict)
+
         all_results.extend(merged_results)
+        save_results_to_excel(all_results, output_filename)
+        print(f"Results saved to {output_filename}")
 
     # Save all results to an Excel file
-    output_filename = "results.xlsx"  # Replace with desired output filename
-    save_results_to_excel(all_results, output_filename)
-    print(f"Results saved to {output_filename}")
 
 
 if __name__ == "__main__":
