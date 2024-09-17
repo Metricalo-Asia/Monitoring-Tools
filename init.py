@@ -56,12 +56,9 @@ def main():
             results_price_plan = AgentUIPricePlan(merchant_name, url, response).process()
             results_languages = AgentUILanguages(merchant_name, url, response).process()
 
-            # Ensure we process all items in results_price_plan, not just the first one
-            for price_plan in results_price_plan:
-                if results_languages and results_status:
-                    # Merging dictionaries for each price plan and combining with the language and status info
-                    merged_dict = {**price_plan, **results_languages[0], **results_status[0]}  # Merging dictionaries
-                    merged_results.append(merged_dict)
+            if results_languages and results_status:
+                merged_dict = {**row, **results_price_plan[0], **results_languages[0], **results_status[0]}
+                merged_results.append(merged_dict)
 
         all_results.extend(merged_results)
         save_results_to_excel(all_results, output_filename)
