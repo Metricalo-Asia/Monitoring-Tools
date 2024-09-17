@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 
 from agents.ui.agent_price_plan import AgentUIPricePlan
+from agents.ui.agent_ui_down_checker import AgentUIDownChecker
 from agents.ui.agent_ui_languages import AgentUILanguages
 from lib.smtpService import send_email_with_attachment
 from lib.telegram import send_telegram_notification, list_chat_ids
@@ -37,16 +38,22 @@ def main():
 
     # Process each URL
     for merchant_name, url in urls:
+        merged_results = [];
         response = requests.get(url)
+
+        results_status = AgentUIDownChecker(merchant_name, url, response).process()
 
         # Check if the request was successful
         if response.status_code != 200:
             print(f"Error fetching the page: {url}")
         else:
-
-            # results = AgentUIPricePlan(merchant_name, url, response).process()
-            results = AgentUILanguages(merchant_name, url, response).process()
-            all_results.extend(results)
+            results_price_plan = AgentUIPricePlan(merchant_name, url, response).process()
+            results_languages = AgentUILanguages(merchant_name, url, response).process()
+            if results_price_plan and results_languages and results_status:  # Check if both arrays are not empty
+                merged_dict = {**results_price_plan[0], **results_languages[0], **results_status[0]}  # Merging the two dictionaries
+                # Create a new array with the merged dictionary
+                merged_results = [merged_dict]
+        all_results.extend(merged_results)
 
     # Save all results to an Excel file
     output_filename = "results.csv"  # Replace with desired output filename
