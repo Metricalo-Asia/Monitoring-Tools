@@ -2,10 +2,12 @@ import re
 import csv
 import pandas as pd
 import requests
+from openpyxl import Workbook
 
 from agents.ui.agent_price_plan import AgentUIPricePlan
 from agents.ui.agent_ui_down_checker import AgentUIDownChecker
 from agents.ui.agent_ui_languages import AgentUILanguages
+
 from lib.smtpService import send_email_with_attachment
 from lib.telegram import send_telegram_notification, list_chat_ids
 
@@ -25,8 +27,7 @@ def load_urls_from_csv(csv_filename):
 # Function to save the results to Excel
 def save_results_to_excel(results, output_filename):
     df = pd.DataFrame(results)
-    df.to_csv(output_filename, index=False, encoding='utf-8')
-
+    df.to_excel(output_filename, index=False)
 
 # Main function
 def main():
@@ -56,7 +57,7 @@ def main():
         all_results.extend(merged_results)
 
     # Save all results to an Excel file
-    output_filename = "results.csv"  # Replace with desired output filename
+    output_filename = "results.xlsx"  # Replace with desired output filename
     save_results_to_excel(all_results, output_filename)
     print(f"Results saved to {output_filename}")
 

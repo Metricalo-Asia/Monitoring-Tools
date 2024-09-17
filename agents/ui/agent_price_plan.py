@@ -1,3 +1,6 @@
+import json
+import re
+
 import requests
 from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup
@@ -37,7 +40,15 @@ class AgentUIPricePlan:
 
         # Parse the page content with BeautifulSoup
         soup = BeautifulSoup(self.response.content, 'html.parser')
+
         try:
+            # Initialize a dictionary to hold all plan information
+            merchant_data = {
+                "Merchant": self.merchant_name,
+                "URL": self.url,
+                "Plans": []  # List to hold all pricing plans
+            }
+
             # Find the 'pricings' div
             pricings_div = soup.find(class_="pricings")
             if not pricings_div:
@@ -53,7 +64,7 @@ class AgentUIPricePlan:
 
             # Process each 'pricing' div
             for pricing_div in pricing_divs:
-                plan_data = {"Merchant": self.merchant_name, "URL": self.url}
+                plan_data = {}
 
                 # Extract the plan name
                 name_element = pricing_div.find(class_="type-wrap")
@@ -63,14 +74,18 @@ class AgentUIPricePlan:
                 pricing_wrap_div = pricing_div.find(class_="pricing-wrap")
                 if pricing_wrap_div:
                     price_element = pricing_wrap_div.find(class_="price")
-                    plan_data["Price"] = price_element.get_text(strip=True) if price_element else "Price not found"
+                    if price_element:
+                        raw_price = price_element.get_text(strip=True)
+                        plan_data["Price"] = re.sub(r'\s+', ' ', raw_price).strip()
+                    else:
+                        plan_data["Price"] = "Price not found"
                 else:
                     plan_data["Price"] = "Price not found"
+
 
                 # Extract the benefits
                 benefits_elements = pricing_div.select(".benefits .streamline")
                 plan_data["Benefits"] = [benefit.get_text(strip=True) for benefit in benefits_elements]
-
 
                 # Check if "Sign up" button exists and extract product_id from the button href
                 signup_button = pricing_div.find(class_="pricing-btn")
@@ -85,24 +100,16 @@ class AgentUIPricePlan:
                     plan_data["Sign Up Button Href"] = "Not found"
                     plan_data["Product ID"] = "Product ID not found"
 
+                # Append each plan data to the 'Plans' list within the single merchant data
+                merchant_data["Plans"].append(plan_data)
 
-                # Print the extracted data to the console
-                print(f"Merchant: {self.merchant_name}")
-                print(f"Product ID: {plan_data['Product ID']}")
-                print(f"URL: {plan_data['URL']}")
-                print(f"Plan Name: {plan_data['Plan Name']}")
-                print(f"Price: {plan_data['Price']}")
-                print("Benefits:")
-
-                for benefit in plan_data["Benefits"]:
-                    print(f" - {benefit}")
-                print(f"Sign Up Button Href: {plan_data['Sign Up Button Href']}")
-                print("")  # Empty line for readability
-
-                results.append(plan_data)
+            # Add the merchant data (with all plans) to the results list
+            results.append(merchant_data)
 
         except Exception as e:
             print(f"Error processing URL {self.url}: {e}")
-            results.append({"Merchant": self.merchant_name, "URL": self.url, "Error": str(e)})
+            results.append({"Merchant": self.merchant_name, "URL": self.url})
 
+        print(json.dumps(results, indent=2))
         return results
+
