@@ -1,5 +1,8 @@
+import json
 import sqlite3
 import os
+from datetime import datetime
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,6 +40,41 @@ class Database:
                 self.conn.execute(query, params)
             else:
                 self.conn.execute(query)
+
+    def log(self, site_row, results):
+        """
+        Save the processed results into the log table.
+        :param db: Instance of the Database class.
+        :param site_row: Row of the site that was processed.
+        :param results: Merged results dictionary from the agents.
+        """
+        insert_query = """
+        INSERT INTO log (site_id, plans, language_count, languages, status_code, status, iframe_integrity_status, iframe_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """
+
+        # Extract necessary fields for logging
+        params = (
+            results.get('id').item(),  # Foreign key to the sites table
+            json.dumps(results.get('Plans')),  # Store plans (as JSON text)
+            results.get('Language Count', 0),  # Language count
+            results.get('Languages', ''),  # List of languages
+            results.get('Status Code', 0),  # Status code
+            results.get('Status', ''),  # Status message
+            results.get('Iframe_Integrity_Status', ''),  # Iframe integrity status
+            results.get('Iframe_URL', '')  # Iframe URL
+        )
+
+        self.execute(insert_query, params)
+        # Update the last_run timestamp for the processed site
+
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        updates = "last_run = ?"
+        condition = "id = ?"
+        update_params = (current_time, results.get('id').item())
+
+        # Use the existing update function
+        self.update('sites', updates, condition, update_params)
 
     def fetchall(self, query, params=None):
         """Fetch all rows for a given query."""

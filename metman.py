@@ -233,7 +233,7 @@ def main():
     parser.add_argument('command',
                         help='The command to execute (e.g., migrate, create_migration, import_sites, add_site, delete_site, view_logs, view_sites)',
                         choices=['migrate', 'create_migration', 'import_sites', 'add_site', 'delete_site', 'view_logs',
-                                 'view_sites'])
+                                 'clear_log', 'view_sites'])
     parser.add_argument('--name', help='Name of the migration (used with create_migration)')
     parser.add_argument('--csv', help='Path to the CSV file (used with import_sites)')
     parser.add_argument('--merchant_number', help='Merchant Number (used with add_site)')

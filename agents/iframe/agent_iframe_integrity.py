@@ -15,11 +15,11 @@ class AgentIframeIntegrity:
     has_error = False
 
     def __init__(self, row, level="1"):
-        self.url = row['URL']
+        self.url = row['url']
         self.level = level
-        self.merchant_name = row['Company name']
-        self.username = row['Test User L' + level + ' Login']
-        self.password = row['Test User L' + level + ' Password']
+        self.merchant_name = row['company_name']
+        self.username = row['test_user_l' + level + '_login']
+        self.password = row['test_user_l' + level + '_password']
         self.login_url = self.url + "/login"
 
     def process(self):
@@ -74,8 +74,10 @@ class AgentIframeIntegrity:
             self.has_error = True
             return [result_dict]
 
+
         authenticated_soup = BeautifulSoup(login_response.content, 'html.parser')
         iframe = authenticated_soup.find('iframe', class_='dashboard-content')
+
         iframe_src = None
         if iframe:
             iframe_src = iframe.get('src') if nonce_input else None
