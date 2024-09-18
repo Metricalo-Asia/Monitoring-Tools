@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from openpyxl import Workbook
 
+from agents.iframe.agent_iframe_integrity import AgentIframeIntegrity
 from agents.ui.agent_price_plan import AgentUIPricePlan
 from agents.ui.agent_ui_down_checker import AgentUIDownChecker
 from agents.ui.agent_ui_languages import AgentUILanguages
@@ -42,9 +43,12 @@ def main():
 
     # Process each row in the DataFrame
     for index, row in full_data.iterrows():
+
         merchant_name = row['Company name']
         url = row['URL']
         merged_results = []
+        print("Running test cases on " + merchant_name + " site : " + url)
+
         response = requests.get(url)
 
         results_status = AgentUIDownChecker(merchant_name, url, response).process()
@@ -53,16 +57,21 @@ def main():
         if response.status_code != 200:
             print(f"Error fetching the page: {url}")
         else:
-            results_price_plan = AgentUIPricePlan(merchant_name, url, response).process()
-            results_languages = AgentUILanguages(merchant_name, url, response).process()
+            agent_price_plan = AgentUIPricePlan(merchant_name, url, response)
+            agent_ui_languages = AgentUILanguages(merchant_name, url, response)
+            agent_iframe_integrity = AgentIframeIntegrity(row)
+            results_price_plan = agent_price_plan.process()
+            results_languages = agent_ui_languages.process()
+            results_iframe_integrity = agent_iframe_integrity.process()
 
             if results_languages and results_status:
-                merged_dict = {**row, **results_price_plan[0], **results_languages[0], **results_status[0]}
+                merged_dict = {**row, **results_price_plan[0], **results_languages[0], **results_status[0],
+                               **results_iframe_integrity[0]}
                 merged_results.append(merged_dict)
 
         all_results.extend(merged_results)
         save_results_to_excel(all_results, output_filename)
-        print(f"Results saved to {output_filename}")
+        print(f"Results saved to {output_filename} for {merchant_name} site: {url}")
 
     # Save all results to an Excel file
 
