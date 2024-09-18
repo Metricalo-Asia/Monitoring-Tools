@@ -44,6 +44,16 @@ class AgentUIPricePlan:
 
         print(f"Continuing with the pricing plan process for merchant '{self.merchant_name}' with URL: {self.url}...")
 
+        results = []
+        # Send an HTTP request to get the page content
+        if self.response is None:
+            self.response = requests.get(self.url)
+
+            # Check if the request was successful
+            if self.response.status_code != 200:
+                self.has_error = True
+                return [{"URL": self.url, "Error": f"HTTP {self.response.status_code}"}]
+
         # Parse the page content with BeautifulSoup
         soup = BeautifulSoup(self.response.content, 'html.parser')
 
