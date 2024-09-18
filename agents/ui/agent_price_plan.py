@@ -15,7 +15,9 @@ class AgentUIPricePlan:
     def __init__(self, merchant_name, url, response=None):
         self.url = url
         self.merchant_name = merchant_name
-        self.response = response
+        # Initialize the PricingPlanStart event
+        self.start_event = PricingPlanStart(self.url, self.merchant_name)
+        self.url_check = PricingPlanUrlCheck(self.url, self.merchant_name)
 
     def extract_product_id(self, url):
         # Parse the URL and extract query parameters
@@ -29,16 +31,18 @@ class AgentUIPricePlan:
 
     # Function to process each URL and return the extracted data
     def process(self):
-        print("Running: " + self.__class__.__name__)
-        results = []
-        # Send an HTTP request to get the page content
-        if self.response is None:
-            self.response = requests.get(self.url)
+        """Process the pricing plan with validation checks."""
+        # First validate URL and merchant name
+        self.start_event.validate()
+        if self.start_event.state == 'failure':
+            return  # Stop the process if URL and merchant name validation fails
 
-            # Check if the request was successful
-            if self.response.status_code != 200:
-                self.has_error = True
-                return [{"URL": self.url, "Error": f"HTTP {self.response.status_code}"}]
+        # Then check the HTTP status code
+        self.url_check.validate()
+        if self.url_check.state == 'failure':
+            return  # Stop the process if HTTP status code check fails
+
+        print(f"Continuing with the pricing plan process for merchant '{self.merchant_name}' with URL: {self.url}...")
 
         # Parse the page content with BeautifulSoup
         soup = BeautifulSoup(self.response.content, 'html.parser')
