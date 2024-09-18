@@ -6,11 +6,12 @@ class AgentUIDownChecker:
     url = None
     merchant_name = None
     response = None
-
+    has_error = False
     def __init__(self, merchant_name, url, response=None):
         self.url = url
         self.merchant_name = merchant_name
         self.response = response
+        has_error = False
 
     @staticmethod
     def get_status_text(status_code):
@@ -77,12 +78,15 @@ class AgentUIDownChecker:
         return status_codes.get(status_code, 'Unknown Status Code')
 
     def process(self):
+        print("Running: " + self.__class__.__name__)
         # Send an HTTP request to get the page content
         if self.response is None:
             self.response = requests.get(self.url)
 
+        if self.response.status_code != 200:
+            self.has_error = True
+
         result_dict = {
-            "Merchant": self.merchant_name,
             "URL": self.url,
             "Status Code": self.response.status_code,
             "Status": AgentUIDownChecker.get_status_text(self.response.status_code),

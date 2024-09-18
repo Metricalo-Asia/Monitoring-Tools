@@ -10,6 +10,7 @@ class AgentUIPricePlan:
     url = None
     merchant_name = None
     response = None
+    has_error = False
 
     def __init__(self, merchant_name, url, response=None):
         self.url = url
@@ -28,6 +29,7 @@ class AgentUIPricePlan:
 
     # Function to process each URL and return the extracted data
     def process(self):
+        print("Running: " + self.__class__.__name__)
         results = []
         # Send an HTTP request to get the page content
         if self.response is None:
@@ -35,8 +37,8 @@ class AgentUIPricePlan:
 
             # Check if the request was successful
             if self.response.status_code != 200:
-                print(f"Error fetching the page: {self.url}")
-                return [{"Merchant": self.merchant_name, "URL": self.url, "Error": f"HTTP {self.response.status_code}"}]
+                self.has_error = True
+                return [{"URL": self.url, "Error": f"HTTP {self.response.status_code}"}]
 
         # Parse the page content with BeautifulSoup
         soup = BeautifulSoup(self.response.content, 'html.parser')
@@ -44,7 +46,6 @@ class AgentUIPricePlan:
         try:
             # Initialize a dictionary to hold all plan information
             merchant_data = {
-                "Merchant": self.merchant_name,
                 "URL": self.url,
                 "Plans": []  # List to hold all pricing plans
             }
@@ -52,11 +53,13 @@ class AgentUIPricePlan:
             # Find the 'pricings' div
             pricings_div = soup.find(class_="pricings")
             if not pricings_div:
+                self.has_error = True
                 raise ValueError("'pricings' div not found")
 
             # Find the 'pricings-container' div within the 'pricings' div
             pricings_container_div = pricings_div.find(class_="pricings-container")
             if not pricings_container_div:
+                self.has_error = True
                 raise ValueError("'pricings-container' div not found")
 
             # Find all 'pricing' divs within the 'pricings-container' div
@@ -107,9 +110,9 @@ class AgentUIPricePlan:
             results.append(merchant_data)
 
         except Exception as e:
-            print(f"Error processing URL {self.url}: {e}")
-            results.append({"Merchant": self.merchant_name, "URL": self.url})
+            self.has_error = True
+            results.append({"URL": self.url})
 
-        print(json.dumps(results, indent=2))
+        self.has_error = (len(results) == 0)
         return results
 
