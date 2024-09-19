@@ -1,74 +1,39 @@
-import json
-import re
+class PricingPlanParse:
+    """Handles parsing the pricing plan information from the page content."""
 
-import requests
-from urllib.parse import urlparse, parse_qs
-from bs4 import BeautifulSoup
-
-
-
-
-class AgentUIPricePlan:
-    url = None
-    merchant_name = None
-    response = None
-    has_error = False
-
-    def __init__(self, merchant_name, url, response=None):
+    def __init__(self, soup, url, merchant_name):
+        self.soup = soup
         self.url = url
         self.merchant_name = merchant_name
-        # Initialize the PricingPlanStart event
-        self.start_event = PricingPlanStart(self.url, self.merchant_name)
-        self.url_check = PricingPlanUrlCheck(self.url, self.merchant_name)
+        self.state = None
+        self.SUCCESS_MESSAGE = (f"Pricing plan parsing completed successfully for merchant '{self.merchant_name}' with URL: {self.url}.")
+        self.FAILURE_MESSAGES = {
+            'missing_pricings_div': (f"'pricings' div not found for merchant '{self.merchant_name}' with URL: {self.url}."),
+            'missing_pricings_container_div': (f"'pricings-container' div not found for merchant '{self.merchant_name}' with URL: {self.url}."),
+            'parsing_error': (f"Error occurred while parsing pricing plans for merchant '{self.merchant_name}' with URL: {self.url}.")
+        }
 
-    def extract_product_id(self, url):
-        # Parse the URL and extract query parameters
-        parsed_url = urlparse(url)
-        query_params = parse_qs(parsed_url.query)
-
-        # Check if 'product_id' is present in the query parameters
-        if 'product_id' in query_params:
-            return query_params['product_id'][0]  # Return the first value of 'product_id'
-        return "Product ID not found"
-
-    # Function to process each URL and return the extracted data
-    def process(self):
-        """Process the pricing plan with validation checks."""
-        # First validate URL and merchant name
-        self.start_event.validate()
-        if self.start_event.state == 'failure':
-            return  # Stop the process if URL and merchant name validation fails
-
-        # Then check the HTTP status code
-        self.url_check.validate()
-        if self.url_check.state == 'failure':
-            return  # Stop the process if HTTP status code check fails
-
-        print(f"Continuing with the pricing plan process for merchant '{self.merchant_name}' with URL: {self.url}...")
-
-        results = []
-        
-        # Parse the page content with BeautifulSoup
-        soup = BeautifulSoup(self.response.content, 'html.parser')
-
+    def parse(self):
+        """Parse the page content to extract pricing plans."""
         try:
-            # Initialize a dictionary to hold all plan information
             merchant_data = {
                 "URL": self.url,
                 "Plans": []  # List to hold all pricing plans
             }
 
             # Find the 'pricings' div
-            pricings_div = soup.find(class_="pricings")
+            pricings_div = self.soup.find(class_="pricings")
             if not pricings_div:
-                self.has_error = True
-                raise ValueError("'pricings' div not found")
+                self.state = 'failure'
+                self._handle_failure('missing_pricings_div')
+                return merchant_data
 
             # Find the 'pricings-container' div within the 'pricings' div
             pricings_container_div = pricings_div.find(class_="pricings-container")
             if not pricings_container_div:
-                self.has_error = True
-                raise ValueError("'pricings-container' div not found")
+                self.state = 'failure'
+                self._handle_failure('missing_pricings_container_div')
+                return merchant_data
 
             # Find all 'pricing' divs within the 'pricings-container' div
             pricing_divs = pricings_container_div.find_all(class_="pricing")
@@ -93,7 +58,6 @@ class AgentUIPricePlan:
                 else:
                     plan_data["Price"] = "Price not found"
 
-
                 # Extract the benefits
                 benefits_elements = pricing_div.select(".benefits .streamline")
                 plan_data["Benefits"] = [benefit.get_text(strip=True) for benefit in benefits_elements]
@@ -114,13 +78,27 @@ class AgentUIPricePlan:
                 # Append each plan data to the 'Plans' list within the single merchant data
                 merchant_data["Plans"].append(plan_data)
 
-            # Add the merchant data (with all plans) to the results list
-            results.append(merchant_data)
+            self.state = 'success'
+            self._handle_success()
+            return merchant_data
 
         except Exception as e:
-            self.has_error = True
-            results.append({"URL": self.url})
+            self.state = 'failure'
+            self._handle_failure('parsing_error')
+            return {"URL": self.url, "Error": str(e)}
 
-        self.has_error = (len(results) == 0)
-        return results
+    def extract_product_id(self, url):
+        """Extract product ID from the URL."""
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+        if 'product_id' in query_params:
+            return query_params['product_id'][0]
+        return "Product ID not found"
 
+    def _handle_success(self):
+        """Handle the success state by printing the success message."""
+        print(self.SUCCESS_MESSAGE)
+
+    def _handle_failure(self, failure_key):
+        """Handle the failure state by printing the specific failure message."""
+        print(self.FAILURE_MESSAGES.get(failure_key, self.FAILURE_MESSAGES['parsing_error']))
