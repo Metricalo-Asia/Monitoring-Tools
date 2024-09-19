@@ -49,8 +49,8 @@ class Database:
         :param results: Merged results dictionary from the agents.
         """
         insert_query = """
-        INSERT INTO log (site_id, plans, language_count, languages, status_code, status, iframe_integrity_status, iframe_url)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO log (site_id, plans, language_count, languages, status_code, status, iframe_integrity_status, iframe_url, form_check_data)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         # Extract necessary fields for logging
@@ -62,7 +62,8 @@ class Database:
             results.get('Status Code', 0),  # Status code
             results.get('Status', ''),  # Status message
             results.get('Iframe_Integrity_Status', ''),  # Iframe integrity status
-            results.get('Iframe_URL', '')  # Iframe URL
+            results.get('Iframe_URL', ''),  # Iframe URL
+            json.dumps(results.get('form_check_data')),  # Iframe URL
         )
 
         self.execute(insert_query, params)

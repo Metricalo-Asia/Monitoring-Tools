@@ -5,6 +5,7 @@ import requests
 from openpyxl import Workbook
 
 from agents.iframe.agent_iframe_integrity import AgentIframeIntegrity
+from agents.ui.agent_form_signup_checkout import AgentFormChecker
 from agents.ui.agent_price_plan import AgentUIPricePlan
 from agents.ui.agent_ui_down_checker import AgentUIDownChecker
 from agents.ui.agent_ui_languages import AgentUILanguages
@@ -132,20 +133,36 @@ def main_db():
             agent_price_plan = AgentUIPricePlan(merchant_name, url, response)
             agent_ui_languages = AgentUILanguages(merchant_name, url, response)
             agent_iframe_integrity = AgentIframeIntegrity(site_row)
+            agent_signup = AgentFormChecker(merchant_name, url, response)
 
             # Process the results from the agents
-            results_price_plan = agent_price_plan.process()
+
             results_languages = agent_ui_languages.process()
+            results_price_plan = agent_price_plan.process()
             results_iframe_integrity = agent_iframe_integrity.process()
+            results_form = agent_signup.process()
 
             # Merge results and prepare for saving
-            if results_languages and results_status:
-                merged_dict = {**site_row, **results_price_plan[0], **results_languages[0], **results_status[0],
-                               **results_iframe_integrity[0]}
-                merged_results.append(merged_dict)
+            merged_dict = {}
 
-                # Save the results to the log table
-                db.log(site_row, merged_dict)
+            if results_status:
+                merged_dict = {**site_row, **results_status[0]}
+
+            if results_languages:
+                merged_dict = {**merged_dict, **results_languages[0]}
+
+            if results_price_plan:
+                merged_dict = {**merged_dict, **results_price_plan[0]}
+
+            if results_iframe_integrity:
+                merged_dict = {**merged_dict, **results_iframe_integrity[0]}
+
+            if results_form:
+                merged_dict = {**merged_dict, **results_form[0]}
+
+            merged_results.append(merged_dict)
+            # Save the results to the log table
+            db.log(site_row, merged_dict)
 
     except Exception as e:
         db.log(site_row, {
@@ -153,15 +170,9 @@ def main_db():
             'Status Code': "-1",
         })
         print(f"Error fetching URL {url}: {e}")
-    except requests.exceptions.ConnectionError as e:
-        db.log(site_row, {
-            'Status': f"Exception: {e}",
-            'Status Code': "-1",
-        })
 
     # Close the database connection
     db.close()
-
 
 
 if __name__ == "__main__":
