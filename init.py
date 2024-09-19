@@ -126,7 +126,7 @@ def main_db():
 
         # Check if the request was successful
         if response.status_code != 200:
-            print(f"Error fetching the page: {url}")
+            db.log(site_row, results_status[0])
         else:
 
             agent_price_plan = AgentUIPricePlan(merchant_name, url, response)
@@ -148,7 +148,16 @@ def main_db():
                 db.log(site_row, merged_dict)
 
     except Exception as e:
+        db.log(site_row, {
+            'Status': f"Exception: {e}",
+            'Status Code': "-1",
+        })
         print(f"Error fetching URL {url}: {e}")
+    except requests.exceptions.ConnectionError as e:
+        db.log(site_row, {
+            'Status': f"Exception: {e}",
+            'Status Code': "-1",
+        })
 
     # Close the database connection
     db.close()

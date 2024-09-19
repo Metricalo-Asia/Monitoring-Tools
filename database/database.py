@@ -55,7 +55,7 @@ class Database:
 
         # Extract necessary fields for logging
         params = (
-            results.get('id').item(),  # Foreign key to the sites table
+            site_row.get('id').item(),  # Foreign key to the sites table
             json.dumps(results.get('Plans')),  # Store plans (as JSON text)
             results.get('Language Count', 0),  # Language count
             results.get('Languages', ''),  # List of languages
@@ -71,7 +71,7 @@ class Database:
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         updates = "last_run = ?"
         condition = "id = ?"
-        update_params = (current_time, results.get('id').item())
+        update_params = (current_time, site_row.get('id').item())
 
         # Use the existing update function
         self.update('sites', updates, condition, update_params)
