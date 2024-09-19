@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS log (
     status TEXT,
     iframe_integrity_status TEXT,
     iframe_url TEXT,
+    form_check_data TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
 );
