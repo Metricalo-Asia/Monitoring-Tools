@@ -83,3 +83,8 @@ You can find a file called `metman.py` in the project root, which is a useful to
     python metman.py view_sites --page=1 --page_size=5
     ```
 
+- **`get_sitekey`**: Refreshes the `sites` with the latest site keys from CRM.
+  - `--cookie`: The Cookie is the one you can find it in your network tab in the request header after logging into the CRM.
+    ```sh
+    python metman.py get_sitekey --cookie=9mqf99gmcgrmpe1h1bok
+    ```

@@ -1,7 +1,24 @@
 import os
 import argparse
+import re
+
+from bs4 import BeautifulSoup
+
 from database.database import Database  # Assuming the Database class is in 'database/database.py'
 import pandas as pd
+import requests
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 def create_migrations_table(db):
@@ -228,12 +245,71 @@ def view_sites(page=1, page_size=10):
         print("No sites found for this page.")
 
 
+def get_sitekey(cookie,pagenum=1):
+    db = Database()
+    print(bcolors.HEADER +"Refreshing site api keys" + bcolors.ENDC)
+    url = "https://portal.lexior.io/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D="+pagenum.__str__()+"&filter%5B_per_page%5D=192"
+    headers = {
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+        'cache-control': 'no-cache',
+        'pragma': 'no-cache',
+        'priority': 'u=0, i',
+        'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'none',
+        'sec-fetch-user': '?1',
+        'upgrade-insecure-requests': '1',
+        'cookie': 'hl=en; PHPSESSID=' + cookie,
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            entries = soup.select("form .table tbody tr")
+            pagination = soup.select(".pagination > li")
+            max_pages = 0
+            for page in pagination:
+                if page.text.isnumeric():
+                    if int(page.text) > max_pages:
+                        max_pages = int(page.text)
+
+            for site_row in entries:
+                site_url = site_row.select("td.sonata-ba-list-field")[7].get_text(strip=True)
+                site_api_button = site_row.select_one("td.sonata-ba-list-field-actions .btn-group div button[data-target]")
+                site_api_key = ""
+                match = re.search(r"alert\('([A-Za-z0-9]+)'\);", site_api_button['onclick'])
+
+                if match:
+                    site_api_key = match.group(1)
+                    updates = "site_api_key = ?"
+                    condition = "url = ?"
+                    update_params = (site_api_key, site_url)
+                    db.update('sites',updates,condition,update_params)
+
+            if pagenum < max_pages:
+                get_sitekey(cookie,pagenum+1)
+        else:
+            db.close()
+            print(bcolors.FAIL + "Error: Make sure you have provided" + bcolors.ENDC)
+
+    except Exception as e:
+        db.close()
+        print( bcolors.FAIL + f"Error fetching URL {url}: {e}" + bcolors.ENDC)
+    db.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description='Manage database migrations and sites')
     parser.add_argument('command',
                         help='The command to execute (e.g., migrate, create_migration, import_sites, add_site, delete_site, view_logs, view_sites)',
                         choices=['migrate', 'create_migration', 'import_sites', 'add_site', 'delete_site', 'view_logs',
-                                 'clear_log', 'view_sites'])
+                                 'clear_log', 'view_sites', 'get_sitekey'])
     parser.add_argument('--name', help='Name of the migration (used with create_migration)')
     parser.add_argument('--csv', help='Path to the CSV file (used with import_sites)')
     parser.add_argument('--merchant_number', help='Merchant Number (used with add_site)')
@@ -250,6 +326,7 @@ def main():
     parser.add_argument('--limit', type=int, default=10, help='Limit the number of logs to view (used with view_logs)')
     parser.add_argument('--page', type=int, default=1, help='Page number to view (used with view_sites)')
     parser.add_argument('--page_size', type=int, default=10, help='Number of sites per page (used with view_sites)')
+    parser.add_argument('--cookie', help='Number of sites per page (used with get_sitekey)')
 
     args = parser.parse_args()
 
@@ -287,6 +364,8 @@ def main():
         view_latest_logs(args.limit)
     elif args.command == 'view_sites':
         view_sites(args.page, args.page_size)
+    elif args.command == 'get_sitekey':
+        get_sitekey(args.cookie)
 
     db.close()
 
