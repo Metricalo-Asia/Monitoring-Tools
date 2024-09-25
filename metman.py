@@ -1,6 +1,7 @@
 import os
 import argparse
 import re
+import sqlite3
 
 from bs4 import BeautifulSoup
 
@@ -141,21 +142,24 @@ def import_sites_from_csv(csv_file):
     # Insert data into the 'sites' table
     with db.conn:
         for index, row in df.iterrows():
-            db.conn.execute('''
-                INSERT INTO sites (
-                    merchant_number, company_name, url, type,
-                    test_user_l1_login, test_user_l1_password,
-                    test_user_l2_login, test_user_l2_password,
-                    test_user_l3_login, test_user_l3_password,
-                    last_run
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                row["Merchant Number"], row["Company name"], row["URL"], row["Type"],
-                row["Test User L1 Login"], row["Test User L1 Password"],
-                row["Test User L2 Login"], row["Test User L2 Password"],
-                row["Test User L3 Login"], row["Test User L3 Password"],
-                None  # `last_run` is NULL by default
-            ))
+            try:
+                db.conn.execute('''
+                    INSERT INTO sites (
+                        merchant_number, company_name, url, type,
+                        test_user_l1_login, test_user_l1_password,
+                        test_user_l2_login, test_user_l2_password,
+                        test_user_l3_login, test_user_l3_password,
+                        last_run
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    row["Merchant Number"], row["Company name"], row["URL"], row["Type"],
+                    row["Test User L1 Login"], row["Test User L1 Password"],
+                    row["Test User L2 Login"], row["Test User L2 Password"],
+                    row["Test User L3 Login"], row["Test User L3 Password"],
+                    None  # `last_run` is NULL by default
+                ))
+            except sqlite3.IntegrityError as ex:
+                continue
 
     print(f"Data imported successfully from '{csv_file}'.")
 
@@ -245,10 +249,10 @@ def view_sites(page=1, page_size=10):
         print("No sites found for this page.")
 
 
-def get_sitekey(cookie,pagenum=1):
+def get_sitekey(cookie, pagenum=1):
     db = Database()
-    print(bcolors.HEADER +"Refreshing site api keys" + bcolors.ENDC)
-    url = "https://portal.lexior.io/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D="+pagenum.__str__()+"&filter%5B_per_page%5D=192"
+    print(bcolors.HEADER + "Refreshing site api keys" + bcolors.ENDC)
+    url = "https://portal.lexior.io/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D=" + pagenum.__str__() + "&filter%5B_per_page%5D=192"
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
@@ -281,26 +285,29 @@ def get_sitekey(cookie,pagenum=1):
 
             for site_row in entries:
                 site_url = site_row.select("td.sonata-ba-list-field")[7].get_text(strip=True)
-                site_api_button = site_row.select_one("td.sonata-ba-list-field-actions .btn-group div button[data-target]")
+                site_api_button = site_row.select_one(
+                    "td.sonata-ba-list-field-actions .btn-group div button[data-target]")
                 site_api_key = ""
                 match = re.search(r"alert\('([A-Za-z0-9]+)'\);", site_api_button['onclick'])
-
+                if site_url == "https://softskillgl.com":
+                    print(site_api_button['onclick'])
+                    return
                 if match:
                     site_api_key = match.group(1)
                     updates = "site_api_key = ?"
                     condition = "url = ?"
                     update_params = (site_api_key, site_url)
-                    db.update('sites',updates,condition,update_params)
+                    db.update('sites', updates, condition, update_params)
 
             if pagenum < max_pages:
-                get_sitekey(cookie,pagenum+1)
+                get_sitekey(cookie, pagenum + 1)
         else:
             db.close()
             print(bcolors.FAIL + "Error: Make sure you have provided" + bcolors.ENDC)
 
     except Exception as e:
         db.close()
-        print( bcolors.FAIL + f"Error fetching URL {url}: {e}" + bcolors.ENDC)
+        print(bcolors.FAIL + f"Error fetching URL {url}: {e}" + bcolors.ENDC)
     db.close()
 
 
