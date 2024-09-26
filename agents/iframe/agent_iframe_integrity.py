@@ -1,4 +1,5 @@
 import json
+import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -35,12 +36,13 @@ class AgentIframeIntegrity:
                 'level': i.__str__(),
             }
 
-            if not self.row['test_user_l' + i.__str__() + '_login'] or not self.row['test_user_l' + i.__str__() + '_password']:
+            if not self.row['test_user_l' + i.__str__() + '_login'] or not self.row[
+                'test_user_l' + i.__str__() + '_password']:
                 temp['status'] = "Credentials Not Found"
                 results.append(temp)
                 continue
 
-            login_response = self.login_response(level=i.__str__())
+            (login_response, session) = self.login_response(level=i.__str__())
             if login_response is None or login_response.status_code != 200:
                 print(f"AgentIframeIntegrity: Error fetching the page: {self.login_post_url}")
                 result_dict = {
@@ -58,7 +60,7 @@ class AgentIframeIntegrity:
                 temp['concept_url'] = iframe_src
 
             results.append(temp)
-
+            session.close()
         return results
 
     def login_response(self, level="1"):
@@ -104,33 +106,14 @@ class AgentIframeIntegrity:
             login_response = session.post(self.login_post_url, data=payload)
         else:
             login_response = None
-        session.close()
         # Perform the POST request to submit the login form
-        return login_response
+        return [login_response, session]
 
     def process(self):
         print("Running: " + self.__class__.__name__)
         results = []
         iframe_concept_result = None
-        login_response = self.login_response(level=self.level)
-
-        session = requests.Session()
-        session.headers.update({
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-language": "en-US,en;q=0.9,bn-US;q=0.8,bn;q=0.7",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "priority": "u=0, i",
-            "sec-ch-ua": '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "document",
-            "sec-fetch-mode": "navigate",
-            "sec-fetch-site": "none",
-            "sec-fetch-user": "?1",
-            "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-        })
+        (login_response, session) = self.login_response(level=self.level)
 
         if login_response is None or login_response.status_code != 200:
             print(f"AgentIframeIntegrity: Error fetching the page: {self.login_post_url}")
@@ -163,8 +146,7 @@ class AgentIframeIntegrity:
             self.has_error = True
             return [result_dict]
 
-        iframeSession = requests.Session()
-        iframe_response = iframeSession.get(iframe_src)
+        iframe_response = session.get(iframe_src)
 
         if iframe_response.status_code != 200:
             print(f"AgentIframeIntegrity: Error fetching the page: {iframe_src}")
