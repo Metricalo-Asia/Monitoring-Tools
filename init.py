@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from openpyxl import Workbook
 
+from agents.crm.agent_crm_plans import AgentCRMPricePlan
 from agents.iframe.agent_iframe_integrity import AgentIframeIntegrity
 from agents.ui.agent_form_signup_checkout import AgentFormChecker
 from agents.ui.agent_price_plan import AgentUIPricePlan
@@ -44,7 +45,7 @@ def load_single_site_from_db(db):
     query = """
     SELECT id, merchant_number, company_name, url, type, test_user_l1_login, 
            test_user_l1_password, test_user_l2_login, test_user_l2_password, 
-           test_user_l3_login, test_user_l3_password 
+           test_user_l3_login, test_user_l3_password, site_api_key 
     FROM sites
     ORDER BY last_run ASC
     LIMIT 1
@@ -54,7 +55,7 @@ def load_single_site_from_db(db):
     # Convert the result to a DataFrame
     columns = ['id', 'merchant_number', 'company_name', 'url', 'type', 'test_user_l1_login',
                'test_user_l1_password', 'test_user_l2_login', 'test_user_l2_password',
-               'test_user_l3_login', 'test_user_l3_password']
+               'test_user_l3_login', 'test_user_l3_password', 'site_api_key']
 
     return pd.DataFrame(result, columns=columns)
 
@@ -134,13 +135,15 @@ def main_db():
             agent_ui_languages = AgentUILanguages(merchant_name, url, response)
             agent_iframe_integrity = AgentIframeIntegrity(site_row)
             agent_signup = AgentFormChecker(merchant_name, url, response)
+            agent_crm_plan = AgentCRMPricePlan(site_row)
 
             # Process the results from the agents
-
+            results_crm_plan = agent_crm_plan.process()
             results_languages = agent_ui_languages.process()
             results_price_plan = agent_price_plan.process()
             results_iframe_integrity = agent_iframe_integrity.process()
             results_form = agent_signup.process()
+
 
             # Merge results and prepare for saving
             merged_dict = {}
