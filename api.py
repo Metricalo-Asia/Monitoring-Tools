@@ -196,7 +196,8 @@ def view_sites(page: int = 1, page_size: int = 10, token_verified: None = Depend
 @app.get("/get-sitekey/")
 async def get_sitekey(cookie: str, pagenum: int = 1, token_verified: None = Depends(verify_bearer_token)):
     db = Database()
-    url = f"https://portal.lexior.io/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D={pagenum}&filter%5B_per_page%5D=192"
+
+    url = f"{os.getenv("CRM_HOST")}/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D={pagenum}&filter%5B_per_page%5D=192"
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',

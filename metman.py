@@ -8,7 +8,9 @@ from bs4 import BeautifulSoup
 from database.database import Database  # Assuming the Database class is in 'database/database.py'
 import pandas as pd
 import requests
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class bcolors:
     HEADER = '\033[95m'
@@ -252,7 +254,8 @@ def view_sites(page=1, page_size=10):
 def get_sitekey(cookie, pagenum=1):
     db = Database()
     print(bcolors.HEADER + "Refreshing site api keys" + bcolors.ENDC)
-    url = "https://portal.lexior.io/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D=" + pagenum.__str__() + "&filter%5B_per_page%5D=192"
+
+    url = f"{os.getenv('CRM_HOST')}/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D=" + pagenum.__str__() + "&filter%5B_per_page%5D=192"
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
