@@ -1,0 +1,347 @@
+{
+	"info": {
+		"_postman_id": "5897bc3e-48b8-4d30-959f-b096891e8bb1",
+		"name": "Monitoring Tools",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38521965",
+		"_collection_link": "https://metricalo.postman.co/workspace/ff50bf37-fdbe-450e-9511-61a57611a2c1/collection/38521965-5897bc3e-48b8-4d30-959f-b096891e8bb1?action=share&source=collection_link&creator=38521965"
+	},
+	"item": [
+		{
+			"name": "Root",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Sites",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `\r",
+							"<style type=\"text/css\">\r",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+							"    .tftable tr {background-color:#ffffff;}\r",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+							"    .tftable tr:hover {background-color:#e0ffff;}\r",
+							"</style>\r",
+							"\r",
+							"<table class=\"tftable\" border=\"1\">\r",
+							"    <tr>\r",
+							"        <th>ID</th>\r",
+							"        <th>Merchant Number</th>\r",
+							"        <th>Company Name</th>\r",
+							"        <th>URL</th>\r",
+							"        <th>Type</th>\r",
+							"        <th>Test User L1 Login</th>\r",
+							"        <th>Test User L1 Password</th>\r",
+							"        <th>Test User L2 Login</th>\r",
+							"        <th>Test User L2 Password</th>\r",
+							"        <th>Test User L3 Login</th>\r",
+							"        <th>Test User L3 Password</th>\r",
+							"        <th>Site API Key</th>\r",
+							"        <th>Created At</th>\r",
+							"        <th>Last Run</th>\r",
+							"    </tr>\r",
+							"    \r",
+							"    {{#each response.sites}}\r",
+							"        <tr id=row_{{@key}}>\r",
+							"            <td>{{id}}</td>\r",
+							"            <td>{{merchant_number}}</td>\r",
+							"            <td>{{company_name}}</td>\r",
+							"            <td>{{url}}</td>\r",
+							"            <td>{{type}}</td>\r",
+							"            <td>{{test_user_l1_login}}</td>\r",
+							"            <td>{{test_user_l1_password}}</td>\r",
+							"            <td>{{test_user_l2_login}}</td>\r",
+							"            <td>{{test_user_l2_password}}</td>\r",
+							"            <td>{{test_user_l3_login}}</td>\r",
+							"            <td>{{test_user_l3_password}}</td>\r",
+							"            <td>{{site_api_key}}</td>\r",
+							"            <td>{{created_at}}</td>\r",
+							"            <td>{{last_run}}</td>\r",
+							"        </tr>\r",
+							"    {{/each}}\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function constructVisualizerPayload() {\r",
+							"    return {response: pm.response.json()}\r",
+							"}\r",
+							"\r",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/view-sites?page=4",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"view-sites"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "4"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Logs",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/latest-logs",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"latest-logs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Site Key",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/get-sitekey?cookie=9um7ls0ujcev7skhd76jl2orpb",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"get-sitekey"
+					],
+					"query": [
+						{
+							"key": "cookie",
+							"value": "9um7ls0ujcev7skhd76jl2orpb"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clear Log",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/clear-log",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clear-log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Run",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/run",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"run"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Site",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchant_number\": \"3\",\r\n    \"company_name\": \"Test\",\r\n    \"url\": \"https://kotkoti.com\",\r\n    \"type\": \"LMS\",\r\n    \"test_user_l1_login\": \"username@gmail.com\",\r\n    \"test_user_l1_password\": \"password\",\r\n    \"test_user_l2_login\": null,\r\n    \"test_user_l2_password\": null,\r\n    \"test_user_l3_login\": null,\r\n    \"test_user_l3_password\": null\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/add-site",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"add-site"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Site",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 43\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/delete-site",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"delete-site"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import Sites",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SECRET_KEY}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchant_number\": \"3\",\r\n    \"company_name\": \"Test\",\r\n    \"url\": \"https://kotkoti.com\",\r\n    \"type\": \"LMS\",\r\n    \"test_user_l1_login\": \"username@gmail.com\",\r\n    \"test_user_l1_password\": \"password\",\r\n    \"test_user_l2_login\": null,\r\n    \"test_user_l2_password\": null,\r\n    \"test_user_l3_login\": null,\r\n    \"test_user_l3_password\": null\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/import-sites",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"import-sites"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

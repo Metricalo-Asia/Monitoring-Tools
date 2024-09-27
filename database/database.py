@@ -83,6 +83,39 @@ class Database:
             cursor = self.conn.execute(query, params or [])
             return cursor.fetchall()
 
+    def process_sql_wcolumn(self, sql_query_or_script, params=None):
+        """
+        Execute a raw SQL query or script. Fetch all rows as dictionaries where
+        the column names are the keys.
+
+        :param sql_query_or_script: SQL string or script to be executed.
+        :param params: Parameters to safely inject into the SQL query.
+        :return: List of dictionaries with column names as keys.
+        """
+        try:
+            with self.conn:
+                original_factory = self.conn.row_factory
+                self.conn.row_factory = sqlite3.Row
+
+                # Execute the query with or without parameters
+                if params:
+                    result = self.conn.execute(sql_query_or_script, params)
+                else:
+                    result = self.conn.execute(sql_query_or_script)
+
+                # Fetch and return all rows as dictionaries
+                if result.description:
+                    rows = result.fetchall()
+                    self.conn.row_factory = original_factory
+                    return [dict(row) for row in rows]  # Convert rows to list of dicts
+
+        except sqlite3.Error as e:
+            print(f"An error occurred while processing SQL: {e}")
+            self.conn.row_factory = original_factory
+            return None
+
+        print("SQL executed successfully.")
+
     def process_sql(self, sql_query_or_script, params=None):
         """
         Execute a raw SQL query or script. The query can either be a simple
@@ -138,7 +171,6 @@ class Database:
         try:
             with self.conn:
                 self.conn.execute(update_sql, params)
-            print(f"Record(s) updated in {table}.")
         except sqlite3.Error as e:
             print(f"An error occurred while updating data: {e}")
 
