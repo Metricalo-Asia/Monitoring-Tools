@@ -289,9 +289,6 @@ def get_sitekey(cookie, pagenum=1):
                     "td.sonata-ba-list-field-actions .btn-group div button[data-target]")
                 site_api_key = ""
                 match = re.search(r"alert\('([A-Za-z0-9]+)'\);", site_api_button['onclick'])
-                if site_url == "https://softskillgl.com":
-                    print(site_api_button['onclick'])
-                    return
                 if match:
                     site_api_key = match.group(1)
                     updates = "site_api_key = ?"
