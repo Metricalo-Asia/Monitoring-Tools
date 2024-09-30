@@ -48,10 +48,9 @@ class Database:
         :param site_row: Row of the site that was processed.
         :param results: Merged results dictionary from the agents.
         """
-        insert_query = """
-        INSERT INTO log (site_id, plans, language_count, languages, status_code, status, iframe_integrity_status, iframe_url, form_check_data, iframe_concept_result)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
+        insert_query = """INSERT INTO log (site_id, plans, language_count, languages, status_code, status, 
+        iframe_integrity_status, iframe_url, form_check_data, iframe_concept_result, crm_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?) """
 
         # Extract necessary fields for logging
         params = (
@@ -65,6 +64,7 @@ class Database:
             results.get('Iframe_URL', ''),  # Iframe URL
             json.dumps(results.get('form_check_data')),  # Iframe URL
             json.dumps(results.get('iframe_concept_result')),  # Iframe URL
+            json.dumps(results.get('crm_data')),  # Iframe URL
         )
         self.execute(insert_query, params)
         # Update the last_run timestamp for the processed site

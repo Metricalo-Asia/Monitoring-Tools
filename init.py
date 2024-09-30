@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from openpyxl import Workbook
 
-from agents.crm.agent_crm_plans import AgentCRMPricePlan
+from agents.crm.agent_crm import AgentCRM
 from agents.iframe.agent_iframe_integrity import AgentIframeIntegrity
 from agents.ui.agent_form_signup_checkout import AgentFormChecker
 from agents.ui.agent_price_plan import AgentUIPricePlan
@@ -135,10 +135,10 @@ def main_db():
             agent_ui_languages = AgentUILanguages(merchant_name, url, response)
             agent_iframe_integrity = AgentIframeIntegrity(site_row)
             agent_signup = AgentFormChecker(merchant_name, url, response)
-            agent_crm_plan = AgentCRMPricePlan(site_row)
+            agent_crm = AgentCRM(site_row)
 
             # Process the results from the agents
-            results_crm_plan = agent_crm_plan.process()
+            results_crm_plan = agent_crm.process()
             results_languages = agent_ui_languages.process()
             results_price_plan = agent_price_plan.process()
             results_iframe_integrity = agent_iframe_integrity.process()
@@ -162,6 +162,9 @@ def main_db():
 
             if results_form:
                 merged_dict = {**merged_dict, **results_form[0]}
+
+            if results_form:
+                merged_dict = {**merged_dict, **results_crm_plan}
 
             merged_results.append(merged_dict)
             # Save the results to the log table
