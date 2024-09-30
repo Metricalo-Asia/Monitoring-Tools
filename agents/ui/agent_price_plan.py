@@ -47,7 +47,7 @@ class AgentUIPricePlan:
             # Initialize a dictionary to hold all plan information
             merchant_data = {
                 "URL": self.url,
-                "Plans": []  # List to hold all pricing plans
+                "plans": []  # List to hold all pricing plans
             }
 
             # Find the 'pricings' div
@@ -71,7 +71,7 @@ class AgentUIPricePlan:
 
                 # Extract the plan name
                 name_element = pricing_div.find(class_="type-wrap")
-                plan_data["Plan Name"] = name_element.get_text(strip=True) if name_element else "Name not found"
+                plan_data["plan_name"] = name_element.get_text(strip=True) if name_element else "Name not found"
 
                 # Extract the price
                 pricing_wrap_div = pricing_div.find(class_="pricing-wrap")
@@ -79,32 +79,32 @@ class AgentUIPricePlan:
                     price_element = pricing_wrap_div.find(class_="price")
                     if price_element:
                         raw_price = price_element.get_text(strip=True)
-                        plan_data["Price"] = re.sub(r'\s+', ' ', raw_price).strip()
+                        plan_data["price"] = re.sub(r'\s+', ' ', raw_price).strip()
                     else:
-                        plan_data["Price"] = "Price not found"
+                        plan_data["price"] = "Price not found"
                 else:
-                    plan_data["Price"] = "Price not found"
+                    plan_data["price"] = "Price not found"
 
 
                 # Extract the benefits
                 benefits_elements = pricing_div.select(".benefits .streamline")
-                plan_data["Benefits"] = [benefit.get_text(strip=True) for benefit in benefits_elements]
+                plan_data["benefits"] = [benefit.get_text(strip=True) for benefit in benefits_elements]
 
                 # Check if "Sign up" button exists and extract product_id from the button href
                 signup_button = pricing_div.find(class_="pricing-btn")
                 if signup_button and signup_button.get("href"):
                     signup_button_href = signup_button['href']
-                    plan_data["Sign Up Button Href"] = signup_button_href
+                    plan_data["btn_link"] = signup_button_href
 
                     # Extract product_id from the href of the sign-up button
                     product_id = self.extract_product_id(signup_button_href)
-                    plan_data["Product ID"] = product_id
+                    plan_data["product_id"] = product_id
                 else:
-                    plan_data["Sign Up Button Href"] = "Not found"
-                    plan_data["Product ID"] = "Product ID not found"
+                    plan_data["btn_link"] = "Not found"
+                    plan_data["product_id"] = "Product ID not found"
 
                 # Append each plan data to the 'Plans' list within the single merchant data
-                merchant_data["Plans"].append(plan_data)
+                merchant_data["plans"].append(plan_data)
 
             # Add the merchant data (with all plans) to the results list
             results.append(merchant_data)
