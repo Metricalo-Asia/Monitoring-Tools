@@ -1,3 +1,4 @@
+import json
 import os
 import argparse
 import re
@@ -11,6 +12,7 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -288,6 +290,8 @@ def get_sitekey(cookie, pagenum=1):
 
             for site_row in entries:
                 site_url = site_row.select("td.sonata-ba-list-field")[7].get_text(strip=True)
+                site_domain = re.sub(r'^https?://', '', site_url)
+
                 site_api_button = site_row.select_one(
                     "td.sonata-ba-list-field-actions .btn-group div button[data-target]")
                 site_api_key = ""
@@ -295,8 +299,8 @@ def get_sitekey(cookie, pagenum=1):
                 if match:
                     site_api_key = match.group(1)
                     updates = "site_api_key = ?"
-                    condition = "url = ?"
-                    update_params = (site_api_key, site_url)
+                    condition = "url LIKE ?"
+                    update_params = (site_api_key, f"%{site_domain}%")
                     db.update('sites', updates, condition, update_params)
 
             if pagenum < max_pages:
@@ -311,12 +315,19 @@ def get_sitekey(cookie, pagenum=1):
     db.close()
 
 
+def export_sitekeys():
+    db = Database()
+    print(bcolors.HEADER + "API Keys JSON" + bcolors.ENDC)
+    cursor = db.process_sql_wcolumn("SELECT url, site_api_key from sites")
+    print(json.dumps(cursor))
+
+
 def main():
     parser = argparse.ArgumentParser(description='Manage database migrations and sites')
     parser.add_argument('command',
                         help='The command to execute (e.g., migrate, create_migration, import_sites, add_site, delete_site, view_logs, view_sites)',
                         choices=['migrate', 'create_migration', 'import_sites', 'add_site', 'delete_site', 'view_logs',
-                                 'clear_log', 'view_sites', 'get_sitekey'])
+                                 'clear_log', 'view_sites', 'get_sitekey', 'export_sitekeys'])
     parser.add_argument('--name', help='Name of the migration (used with create_migration)')
     parser.add_argument('--csv', help='Path to the CSV file (used with import_sites)')
     parser.add_argument('--merchant_number', help='Merchant Number (used with add_site)')
@@ -373,6 +384,8 @@ def main():
         view_sites(args.page, args.page_size)
     elif args.command == 'get_sitekey':
         get_sitekey(args.cookie)
+    elif args.command == 'export_sitekeys':
+        export_sitekeys()
 
     db.close()
 
