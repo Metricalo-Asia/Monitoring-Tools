@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS sites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     merchant_number TEXT NOT NULL,
-    company_name TEXT NOT NULL,
+    company_name TEXT,
     url TEXT NOT NULL UNIQUE,
     type TEXT NOT NULL,
     test_user_l1_login TEXT,
