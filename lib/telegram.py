@@ -6,18 +6,28 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+
 # Function to send a message with an attachment to a Telegram group
 def send_telegram_notification(file_path, message):
     bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
 
-    url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
+    if not bot_token or not chat_id:
+        print("Telegram bot token or chat ID is not set")
+        return
 
-    with open(file_path, 'rb') as file:
-        files = {'document': file}
-        data = {'chat_id': chat_id, 'caption': message}
-
-        response = requests.post(url, data=data, files=files)
+    if file_path:
+        # Send file with message
+        url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
+        with open(file_path, 'rb') as file:
+            files = {'document': file}
+            data = {'chat_id': chat_id, 'caption': message}
+            response = requests.post(url, data=data, files=files)
+    else:
+        # Send only text message
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        data = {'chat_id': chat_id, 'text': message}
+        response = requests.post(url, data=data)
 
     if response.status_code != 200:
         print(f"Error sending message: {response.text}")
