@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, Request as FRequest
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+
 import pandas as pd
 import sqlite3
 from pydantic import BaseModel
@@ -148,15 +147,74 @@ def clear_log(token_verified: None = Depends(verify_bearer_token)):
 
 
 @app.get("/latest-logs/")
-def view_latest_logs(limit: int = 10, page: int = 1, token_verified: None = Depends(verify_bearer_token)):
+def view_latest_logs(limit: int = 10, page: int = 1, status: int = -1, token_verified: None = Depends(verify_bearer_token)):
     db = Database()
 
     # Fetch total number of logs
-    total_logs = db.process_sql("SELECT COUNT(*) FROM log")[0][0]  # Assuming process_sql returns a list of tuples
-    max_pages = (total_logs + limit - 1) // limit  # Calculate maximum number of pages
+    if status == -1:
+        count_query = "SELECT COUNT(*) FROM log"
+        total_logs = db.process_sql(count_query)[0][0]
+    else:
+        count_query = "SELECT COUNT(*) FROM log WHERE has_error = ?"
+        total_logs = db.process_sql(count_query, (status,))[0][0]
 
+    max_pages = (total_logs + limit - 1) // limit  # Calculate maximum number of pages
     offset = (page - 1) * limit
-    logs = db.process_sql_wcolumn("SELECT * FROM log ORDER BY created_at DESC LIMIT ? OFFSET ?", (limit, offset))
+
+    # Dynamically change query based on status
+    if status == -1:
+        query = """
+            SELECT 
+                log.id, 
+                log.site_id, 
+                log.plans, 
+                log.language_count, 
+                log.languages, 
+                log.status_code, 
+                log.status, 
+                log.iframe_integrity_status, 
+                log.iframe_url, 
+                log.iframe_concept_result, 
+                log.form_check_data, 
+                log.has_error, 
+                log.created_at,
+                sites.merchant_number, 
+                sites.company_name, 
+                sites.url, 
+                sites.type
+            FROM log
+            LEFT JOIN sites ON log.site_id = sites.id
+            ORDER BY log.created_at DESC
+            LIMIT ? OFFSET ?
+        """
+        logs = db.process_sql_wcolumn(query, (limit, offset))
+    else:
+        query = """
+            SELECT 
+                log.id, 
+                log.site_id, 
+                log.plans, 
+                log.language_count, 
+                log.languages, 
+                log.status_code, 
+                log.status, 
+                log.iframe_integrity_status, 
+                log.iframe_url, 
+                log.iframe_concept_result, 
+                log.form_check_data, 
+                log.has_error, 
+                log.created_at,
+                sites.merchant_number, 
+                sites.company_name, 
+                sites.url, 
+                sites.type
+            FROM log
+            LEFT JOIN sites ON log.site_id = sites.id
+            WHERE log.has_error = ?
+            ORDER BY log.created_at DESC
+            LIMIT ? OFFSET ?
+        """
+        logs = db.process_sql_wcolumn(query, (status, limit, offset))
 
     if logs:
         return {
@@ -169,6 +227,7 @@ def view_latest_logs(limit: int = 10, page: int = 1, token_verified: None = Depe
             'status': False,
             "message": "No logs found for this page."
         }
+
 
 
 @app.get("/view-sites/")
@@ -197,7 +256,7 @@ def view_sites(page: int = 1, page_size: int = 10, token_verified: None = Depend
 async def get_sitekey(cookie: str, pagenum: int = 1, token_verified: None = Depends(verify_bearer_token)):
     db = Database()
 
-    url = f"{os.getenv("CRM_HOST")}/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D={pagenum}&filter%5B_per_page%5D=192"
+    url = f"{os.getenv('CRM_HOST')}/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D={pagenum}&filter%5B_per_page%5D=192"
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',

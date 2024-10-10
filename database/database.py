@@ -49,13 +49,13 @@ class Database:
         :param results: Merged results dictionary from the agents.
         """
         insert_query = """INSERT INTO log (site_id, plans, language_count, languages, status_code, status, 
-        iframe_integrity_status, iframe_url, form_check_data, iframe_concept_result, crm_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 
-        ?, ?, ?) """
+        iframe_integrity_status, iframe_url, form_check_data, iframe_concept_result, crm_data, has_error) VALUES (?, 
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
 
         # Extract necessary fields for logging
         params = (
             site_row.get('id').item(),  # Foreign key to the sites table
-            json.dumps(results.get('Plans')),  # Store plans (as JSON text)
+            json.dumps(results.get('plans')),  # Store plans (as JSON text)
             results.get('Language Count', 0),  # Language count
             results.get('Languages', ''),  # List of languages
             results.get('Status Code', 0),  # Status code
@@ -65,6 +65,7 @@ class Database:
             json.dumps(results.get('form_check_data')),  # Iframe URL
             json.dumps(results.get('iframe_concept_result')),  # Iframe URL
             json.dumps(results.get('crm_data')),  # Iframe URL
+            results.get('has_error', False),
         )
         self.execute(insert_query, params)
         # Update the last_run timestamp for the processed site
