@@ -121,14 +121,17 @@ def main_db():
     url = site_row['url']
     merged_results = []
     print("Running test cases on " + merchant_name + " site : " + url)
-
+    # Merge results and prepare for saving
+    merged_dict = {}
     try:
         response = requests.get(url)
         results_status = AgentUIDownChecker(merchant_name, url, response).process()
 
         # Check if the request was successful
         if response.status_code != 200:
-            db.log(site_row, results_status[0])
+            merged_dict = {**site_row, **results_status[0]}
+            merged_dict = {**merged_dict, **{"has_error": True}}
+            send_telegram_notification(None, f'There is an issue found in {url}')
         else:
 
             agent_price_plan = AgentUIPricePlan(merchant_name, url, response)
@@ -143,10 +146,6 @@ def main_db():
             results_price_plan = agent_price_plan.process()
             results_iframe_integrity = agent_iframe_integrity.process()
             results_form = agent_signup.process()
-
-
-            # Merge results and prepare for saving
-            merged_dict = {}
 
             if results_status:
                 merged_dict = {**site_row, **results_status[0]}
@@ -166,15 +165,23 @@ def main_db():
             if results_form:
                 merged_dict = {**merged_dict, **results_crm_plan}
 
-            merged_results.append(merged_dict)
-            # Save the results to the log table
-            db.log(site_row, merged_dict)
+            if agent_crm.has_error or agent_ui_languages.has_error or agent_iframe_integrity.has_error or \
+                    agent_signup.has_error or agent_price_plan.has_error:
+                merged_dict = {**merged_dict, **{"has_error": True}}
+                send_telegram_notification(None, f'!! 𝑰𝒔𝒔𝒖𝒆 𝑭𝒐𝒖𝒏𝒅 !!')
+
+        merged_results.append(merged_dict)
+        # Save the results to the log table
+        db.log(site_row, merged_dict)
 
     except Exception as e:
-        db.log(site_row, {
+        merged_dict = {**site_row, **{
             'Status': f"Exception: {e}",
             'Status Code': "-1",
-        })
+        }}
+        merged_dict = {**merged_dict, **{"has_error": True}}
+        send_telegram_notification(None, f'There is an issue found in {url}')
+        db.log(site_row, merged_dict)
         print(f"Error fetching URL {url}: {e}")
 
     # Close the database connection
