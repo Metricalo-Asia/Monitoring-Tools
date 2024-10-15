@@ -1,6 +1,9 @@
+import json
 import os
 import re
 import subprocess
+import sys
+
 from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
@@ -72,7 +75,8 @@ async def import_sites_from_csv(file: UploadFile, token_verified: None = Depends
     ]
 
     if not all(col in df.columns for col in required_columns):
-        return {"status": False, "message": f"CSV file must contain the following columns: {', '.join(required_columns)}"}
+        return {"status": False,
+                "message": f"CSV file must contain the following columns: {', '.join(required_columns)}"}
 
     db = Database()
     with db.conn:
@@ -147,7 +151,8 @@ def clear_log(token_verified: None = Depends(verify_bearer_token)):
 
 
 @app.get("/latest-logs/")
-def view_latest_logs(limit: int = 10, page: int = 1, status: int = -1, token_verified: None = Depends(verify_bearer_token)):
+def view_latest_logs(limit: int = 10, page: int = 1, status: int = -1,
+                     token_verified: None = Depends(verify_bearer_token)):
     db = Database()
 
     # Fetch total number of logs
@@ -227,7 +232,6 @@ def view_latest_logs(limit: int = 10, page: int = 1, status: int = -1, token_ver
             'status': False,
             "message": "No logs found for this page."
         }
-
 
 
 @app.get("/view-sites/")
@@ -332,5 +336,70 @@ def run_init_script(token_verified: None = Depends(verify_bearer_token)):
         else:
             return {"status": False, "message": "Error running init.py", "details": result.stderr}
 
+    except Exception as e:
+        return {"status": False, "message": str(e)}
+
+
+@app.post("/async/run")
+async def async_run_init_script(request: FRequest, token_verified: None = Depends(verify_bearer_token)):
+    try:
+        # Extract raw JSON data from the request
+        request_data = await request.json()
+        data = request_data.get("data")
+
+        if not data:
+            return {"status": False, "message": "Missing 'data' in request body"}
+
+        # Get the directory where the current script (api.py) is located
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Path to the asyncinit.py script in the same directory as api.py
+        script_path = os.path.join(current_dir, "asyncinit.py")
+
+        # Use the absolute path to the Python executable
+        python_path = os.getenv("PYTHON_PATH",
+                                sys.executable)  # Use current Python executable if PYTHON_PATH is not set
+
+        # Run the asyncinit.py script with the passed data (arguments should be separate in the list)
+        subprocess.run([python_path, script_path, "run", "--data", data], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL)
+
+        return {"status": True, "message": "Successful run"}
+    except Exception as e:
+        return {"status": False, "message": str(e)}
+
+
+@app.post("/async/get_sitekeys")
+async def async_get_sitekeys(request: FRequest, token_verified: None = Depends(verify_bearer_token)):
+    try:
+        # Extract raw JSON data from the request
+        request_data = await request.json()
+        cookie = request_data.get("cookie")
+        sites = request_data.get("sites")
+        crm_host = request_data.get("crm_host")
+
+        if not cookie:
+            return {"status": False, "message": "Missing 'cookie' in request body"}
+        if not sites:
+            return {"status": False, "message": "Missing 'sites' in request body"}
+        if not crm_host:
+            return {"status": False, "message": "Missing 'crm_host' in request body"}
+
+        # Get the directory where the current script (api.py) is located
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Path to the asyncinit.py script in the same directory as api.py
+        script_path = os.path.join(current_dir, "asyncinit.py")
+
+        # Use the absolute path to the Python executable
+        python_path = os.getenv("PYTHON_PATH",
+                                sys.executable)  # Use current Python executable if PYTHON_PATH is not set
+
+        # Run the asyncinit.py script with the passed data (arguments should be separate in the list)
+        subprocess.Popen([python_path, script_path, "get_sitekeys", "--cookie", cookie, '--crmhost', crm_host, "--data",
+                          json.dumps(sites)])
+        # output = subprocess.run([python_path, script_path, "get_sitekeys", "--cookie", cookie, '--crmhost', crm_host, "--data",json.dumps(sites)], capture_output=True, text=True)
+        # print(output)
+        return {"status": True, "message": "Successful run"}
     except Exception as e:
         return {"status": False, "message": str(e)}
