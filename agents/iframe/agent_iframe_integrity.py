@@ -126,15 +126,21 @@ class AgentIframeIntegrity:
 
         authenticated_soup = BeautifulSoup(login_response.content, 'html.parser')
         iframe = authenticated_soup.find('iframe', class_='dashboard-content')
-
+        login_failed = authenticated_soup.find('div', class_='form-login-wrapper')
         iframe_src = None
         if iframe:
             iframe_src = iframe.get('src')
         else:
-            result_dict = {
-                "URL": self.url,
-                'Iframe_Integrity_Status': "IFRAME_NOT_FOUND"
-            }
+            if login_failed:
+                result_dict = {
+                    "URL": self.url,
+                    'Iframe_Integrity_Status': "INCORRECT_CREDENTIALS"
+                }
+            else:
+                result_dict = {
+                    "URL": self.url,
+                    'Iframe_Integrity_Status': "IFRAME_NOT_FOUND"
+                }
             self.has_error = True
             return [result_dict]
 

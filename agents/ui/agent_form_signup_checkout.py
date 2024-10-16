@@ -233,13 +233,13 @@ class AgentFormChecker:
             pricings_div = soup.find(class_="pricings")
             if not pricings_div:
                 self.has_error = True
-                raise ValueError("'pricings' div not found")
+                return [{"URL": self.url, "Error": f"'pricings' div not found"}]
 
             # Find the 'pricings-container' div within the 'pricings' div
             pricings_container_div = pricings_div.find(class_="pricings-container")
             if not pricings_container_div:
                 self.has_error = True
-                raise ValueError("'pricings-container' div not found")
+                return [{"URL": self.url, "Error": f"'pricings-container' div not found"}]
 
             # Find all 'pricing' divs within the 'pricings-container' div
             pricing_divs = pricings_container_div.find_all(class_="pricing")
@@ -284,7 +284,8 @@ class AgentFormChecker:
             self.has_error = True
             results.append({
                 "url": self.url,
-                "form_check_data": []
+                "form_check_data": [],
+                "Error": e
             })
 
         self.has_error = (len(results) == 0)
