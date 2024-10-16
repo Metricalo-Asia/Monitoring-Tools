@@ -346,6 +346,7 @@ async def async_run_init_script(request: FRequest, token_verified: None = Depend
         # Extract raw JSON data from the request
         request_data = await request.json()
         data = request_data.get("data")
+        client = request_data.get("client")
 
         if not data:
             return {"status": False, "message": "Missing 'data' in request body"}
@@ -359,11 +360,9 @@ async def async_run_init_script(request: FRequest, token_verified: None = Depend
         # Use the absolute path to the Python executable
         python_path = os.getenv("PYTHON_PATH",
                                 sys.executable)  # Use current Python executable if PYTHON_PATH is not set
-
-        # Run the asyncinit.py script with the passed data (arguments should be separate in the list)
-        subprocess.run([python_path, script_path, "run", "--data", data], stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL)
-
+        print(f"python asyncinit.py run --client='{json.dumps(client)}' --data='{json.dumps(data)}'")
+        subprocess.Popen([python_path, script_path, "run", "--client", json.dumps(client), "--data", json.dumps(data)],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return {"status": True, "message": "Successful run"}
     except Exception as e:
         return {"status": False, "message": str(e)}
@@ -397,7 +396,7 @@ async def async_get_sitekeys(request: FRequest, token_verified: None = Depends(v
 
         # Run the asyncinit.py script with the passed data (arguments should be separate in the list)
         subprocess.Popen([python_path, script_path, "get_sitekeys", "--cookie", cookie, '--crmhost', crm_host, "--data",
-                          json.dumps(sites)])
+                          json.dumps(sites)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         # output = subprocess.run([python_path, script_path, "get_sitekeys", "--cookie", cookie, '--crmhost', crm_host, "--data",json.dumps(sites)], capture_output=True, text=True)
         # print(output)
         return {"status": True, "message": "Successful run"}
