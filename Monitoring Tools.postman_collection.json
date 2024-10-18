@@ -1,347 +1,534 @@
 {
 	"info": {
-		"_postman_id": "5897bc3e-48b8-4d30-959f-b096891e8bb1",
+		"_postman_id": "72024ae9-3462-4b0c-8fab-30840006a793",
 		"name": "Monitoring Tools",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38521965",
-		"_collection_link": "https://metricalo.postman.co/workspace/ff50bf37-fdbe-450e-9511-61a57611a2c1/collection/38521965-5897bc3e-48b8-4d30-959f-b096891e8bb1?action=share&source=collection_link&creator=38521965"
+		"_exporter_id": "155806"
 	},
 	"item": [
 		{
-			"name": "Root",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						""
-					]
+			"name": "laravel",
+			"item": [
+				{
+					"name": "Refresh Sitekeys",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"data\": [\n    {\n      \"url\": \"https://aerlsound-test.com\",\n      \"site_api_key\": \"test-site-key\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{laravel_api}}/api/montool/sitekeys/refresh",
+							"host": [
+								"{{laravel_api}}"
+							],
+							"path": [
+								"api",
+								"montool",
+								"sitekeys",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log report",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"data\": {\n    \"site_id\": 134,\n    \"plans\": \"[]\",\n    \"language_count\": 24,\n    \"languages\": \"English,Français,Norsk,Svenska,Suomi,Italiano,Polski,Español,Deutsch,Nederlands,日本語,Português,Magyar,Slovenčina,Bahasa indonesia,Čeština,Eesti keel,Lietuvių,Latviešu,Slovensko,Română,Български,한국어,中文 (简体)\",\n    \"status_code\": 200,\n    \"status\": \"OK\",\n    \"iframe_integrity_status\": \"CONNECTED\",\n    \"iframe_url\": \"https://v2.codetool2.com/learn/?user_id=SITEUSR9LBE4EHATZSX6L8C&c_id=23e99e99-99f7-4101-8b9e-8e1da860368b&w_id=2f3dc5692216&c_id=23e99e99-99f7-4101-8b9e-8e1da860368b&w_id=2f3dc5692216&source=site100.xmastrodem.com\",\n    \"form_check_data\": \"[]\",\n    \"iframe_concept_result\": \"[{\\\"level\\\": \\\"1\\\", \\\"concept_url\\\": \\\"https://v2.codetool2.com/learn/?user_id=SITEUSR9LBE4EHATZSX6L8C&c_id=23e99e99-99f7-4101-8b9e-8e1da860368b&w_id=2f3dc5692216&c_id=23e99e99-99f7-4101-8b9e-8e1da860368b&w_id=2f3dc5692216&source=site100.xmastrodem.com\\\"}, {\\\"level\\\": \\\"2\\\", \\\"status\\\": \\\"Credentials Not Found\\\"}, {\\\"level\\\": \\\"3\\\", \\\"status\\\": \\\"Credentials Not Found\\\"}]\",\n    \"crm_data\": \"{\\\"id\\\": \\\"2f3dc5692216\\\", \\\"grav_cms_client_id\\\": null, \\\"type\\\": \\\"webshop\\\"}\",\n    \"has_error\": false\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{laravel_api}}/api/montool/log",
+							"host": [
+								"{{laravel_api}}"
+							],
+							"path": [
+								"api",
+								"montool",
+								"log"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "View Sites",
+			"name": "python",
+			"item": [
+				{
+					"name": "Deprecated (Outdated)",
+					"item": [
+						{
+							"name": "Root",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "View Sites",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var template = `\r",
+											"<style type=\"text/css\">\r",
+											"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+											"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+											"    .tftable tr {background-color:#ffffff;}\r",
+											"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+											"    .tftable tr:hover {background-color:#e0ffff;}\r",
+											"</style>\r",
+											"\r",
+											"<table class=\"tftable\" border=\"1\">\r",
+											"    <tr>\r",
+											"        <th>ID</th>\r",
+											"        <th>Merchant Number</th>\r",
+											"        <th>Company Name</th>\r",
+											"        <th>URL</th>\r",
+											"        <th>Type</th>\r",
+											"        <th>Test User L1 Login</th>\r",
+											"        <th>Test User L1 Password</th>\r",
+											"        <th>Test User L2 Login</th>\r",
+											"        <th>Test User L2 Password</th>\r",
+											"        <th>Test User L3 Login</th>\r",
+											"        <th>Test User L3 Password</th>\r",
+											"        <th>Site API Key</th>\r",
+											"        <th>Created At</th>\r",
+											"        <th>Last Run</th>\r",
+											"    </tr>\r",
+											"    \r",
+											"    {{#each response.sites}}\r",
+											"        <tr id=row_{{@key}}>\r",
+											"            <td>{{id}}</td>\r",
+											"            <td>{{merchant_number}}</td>\r",
+											"            <td>{{company_name}}</td>\r",
+											"            <td>{{url}}</td>\r",
+											"            <td>{{type}}</td>\r",
+											"            <td>{{test_user_l1_login}}</td>\r",
+											"            <td>{{test_user_l1_password}}</td>\r",
+											"            <td>{{test_user_l2_login}}</td>\r",
+											"            <td>{{test_user_l2_password}}</td>\r",
+											"            <td>{{test_user_l3_login}}</td>\r",
+											"            <td>{{test_user_l3_password}}</td>\r",
+											"            <td>{{site_api_key}}</td>\r",
+											"            <td>{{created_at}}</td>\r",
+											"            <td>{{last_run}}</td>\r",
+											"        </tr>\r",
+											"    {{/each}}\r",
+											"</table>\r",
+											"`;\r",
+											"\r",
+											"function constructVisualizerPayload() {\r",
+											"    return {response: pm.response.json()}\r",
+											"}\r",
+											"\r",
+											"pm.visualizer.set(template, constructVisualizerPayload());"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/view-sites?page=4",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"view-sites"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "4"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "View Logs",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/latest-logs",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"latest-logs"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Refresh Site Key",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/get-sitekey?cookie=9um7ls0ujcev7skhd76jl2orpb",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"get-sitekey"
+									],
+									"query": [
+										{
+											"key": "cookie",
+											"value": "9um7ls0ujcev7skhd76jl2orpb"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Clear Log",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/clear-log",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"clear-log"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Run",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/run",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"run"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Site",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"merchant_number\": \"3\",\r\n    \"company_name\": \"Test\",\r\n    \"url\": \"https://kotkoti.com\",\r\n    \"type\": \"LMS\",\r\n    \"test_user_l1_login\": \"username@gmail.com\",\r\n    \"test_user_l1_password\": \"password\",\r\n    \"test_user_l2_login\": null,\r\n    \"test_user_l2_password\": null,\r\n    \"test_user_l3_login\": null,\r\n    \"test_user_l3_password\": null\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/add-site",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"add-site"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Site",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": 43\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/delete-site",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"delete-site"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Import Sites",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{SECRET_KEY}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"merchant_number\": \"3\",\r\n    \"company_name\": \"Test\",\r\n    \"url\": \"https://kotkoti.com\",\r\n    \"type\": \"LMS\",\r\n    \"test_user_l1_login\": \"username@gmail.com\",\r\n    \"test_user_l1_password\": \"password\",\r\n    \"test_user_l2_login\": null,\r\n    \"test_user_l2_password\": null,\r\n    \"test_user_l3_login\": null,\r\n    \"test_user_l3_password\": null\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/import-sites",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"import-sites"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "These APIs are now deprecated as we have moved to a newer solution, the entire database is in laravel end, so these APIs are still working in outdated technology which is not compatible with the latest monitoring-tool-web."
+				},
+				{
+					"name": "Async Refresh Site Keys",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"crm_host\": \"https://portal.lexior.io\",\n  \"cookie\": \"4itbrnsgbrscmlcbvnug4q8f5q\",\n  \"sites\": [\n    \"https://intelaivision.com\",\n    \"https://financesculpting.com\",\n    \"https://funfundsolution.com\",\n    \"https://webbuildvision.com\",\n    \"https://procvhub.com\",\n    \"https://altnoisi.com\",\n    \"https://aeraiascent.com\",\n    \"https://ascentskill.com\",\n    \"https://finalinn.com\",\n    \"https://budgetlinn.com\",\n    \"https://codlinn.com\",\n    \"https://aerlsound.com\",\n    \"https://softbusskone.com\",\n    \"https://writterkane.com\",\n    \"https://marketoboost.com\",\n    \"https://budgetcane.com\",\n    \"https://tricodelearn.com\",\n    \"https://carrerovl.com\",\n    \"https://scopevl.com\",\n    \"https://stockovl.com\",\n    \"https://vlfinancetrack.com\",\n    \"https://vldevup.com\",\n    \"https://pathofcarrer.com\",\n    \"https://scraiwrite.com\",\n    \"https://tradostic.com\",\n    \"https://trackerdio.com\",\n    \"https://devupgame.com\",\n    \"https://softdord.com\",\n    \"https://aidord.com\",\n    \"https://marketdord.com\",\n    \"https://financord.com\",\n    \"https://codedord.com\",\n    \"https://thecodewizarhub.com\",\n    \"https://gptexcelacademy.com\",\n    \"https://budgetingblasts.com\",\n    \"https://softskillsphere.com\",\n    \"https://aitooladvantage.com\",\n    \"https://softskillssyner.com\",\n    \"https://aitechsavvyzone.com\",\n    \"https://chatonllearning.com\",\n    \"https://budninjanetwork.com\",\n    \"https://codingfasterhub.com\",\n    \"https://thevimagai.com\",\n    \"https://thevifit.com\",\n    \"https://natuthev.com\",\n    \"https://profgrowthhub.com/\",\n    \"https://aiassisthubyour.com/\",\n    \"https://virtualtutorlab.com/\",\n    \"https://budgetboostyour.com/\",\n    \"https://codegeniushive.com/\",\n    \"https://skillsetmingle.com\",\n    \"https://aiinnovatetool.com/\",\n    \"https://exceleduchat.com/\",\n    \"https://frugalfundshub.com/\",\n    \"https://techscripterpro.com\",\n    \"https://sylskillsoft.com\",\n    \"https://sylaisavvy.net\",\n    \"https://sylchatexcel.net\",\n    \"https://sylbudgwise.com\",\n    \"https://sylcodehub.com\",\n    \"https://serskillInter.com\",\n    \"https://seraitool.com\",\n    \"https://serchatgpttool.com\",\n    \"https://serbudgsmart.com\",\n    \"https://serdevtoolkit.com\",\n    \"https://skillnetset.com\",\n    \"https://ainetcraft.com\",\n    \"https://acadentexcel.com\",\n    \"https://fundnethub.com\",\n    \"https://codenetool.com\",\n    \"https://skilltumsof.com\",\n    \"http://tumindai.com\",\n    \"http://tumexcelpro.com\",\n    \"http://tusmartspend.com\",\n    \"http://codetumpro.com\",\n    \"https://site1.xmastrodem.com\",\n    \"https://site2.xmastrodem.com\",\n    \"https://site3.xmastrodem.com\",\n    \"https://site4.xmastrodem.com\",\n    \"https://site6.xmastrodem.com\",\n    \"https://site7.xmastrodem.com\",\n    \"https://site8.xmastrodem.com\",\n    \"https://site9.xmastrodem.com\",\n    \"https://site10.xmastrodem.com\",\n    \"https://site41.xmastrodem.com\",\n    \"https://site42.xmastrodem.com\",\n    \"https://site43.xmastrodem.com\",\n    \"https://site44.xmastrodem.com\",\n    \"https://site45.xmastrodem.com\",\n    \"https://site46.xmastrodem.com\",\n    \"https://site47.xmastrodem.com\",\n    \"https://site48.xmastrodem.com\",\n    \"https://site49.xmastrodem.com\",\n    \"https://site50.xmastrodem.com\",\n    \"https://site61.xmastrodem.com\",\n    \"https://site62.xmastrodem.com\",\n    \"https://site63.xmastrodem.com\",\n    \"https://site64.xmastrodem.com\",\n    \"https://site65.xmastrodem.com\",\n    \"https://site66.xmastrodem.com\",\n    \"https://site67.xmastrodem.com\",\n    \"https://site68.xmastrodem.com\",\n    \"https://site69.xmastrodem.com\",\n    \"https://site70.xmastrodem.com\",\n    \"https://site71.xmastrodem.com\",\n    \"https://site72.xmastrodem.com\",\n    \"https://site73.xmastrodem.com\",\n    \"https://site74.xmastrodem.com\",\n    \"https://site75.xmastrodem.com\",\n    \"https://site76.xmastrodem.com\",\n    \"https://site77.xmastrodem.com\",\n    \"https://site78.xmastrodem.com\",\n    \"https://site79.xmastrodem.com\",\n    \"https://site80.xmastrodem.com\",\n    \"https://site81.xmastrodem.com\",\n    \"https://site82.xmastrodem.com\",\n    \"https://site83.xmastrodem.com\",\n    \"https://site84.xmastrodem.com\",\n    \"https://site85.xmastrodem.com\",\n    \"https://site86.xmastrodem.com\",\n    \"https://site87.xmastrodem.com\",\n    \"https://site88.xmastrodem.com\",\n    \"https://site89.xmastrodem.com\",\n    \"https://site90.xmastrodem.com\",\n    \"https://site91.xmastrodem.com\",\n    \"https://site92.xmastrodem.com\",\n    \"https://site93.xmastrodem.com\",\n    \"https://site94.xmastrodem.com\",\n    \"https://site95.xmastrodem.com\",\n    \"https://site96.xmastrodem.com\",\n    \"https://site97.xmastrodem.com\",\n    \"https://site98.xmastrodem.com\",\n    \"https://site99.xmastrodem.com\",\n    \"https://site100.xmastrodem.com\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/async/get_sitekeys",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"async",
+								"get_sitekeys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Async Run",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client\": [\n    {\n      \"id\": 1,\n      \"name\": \"Desert Media\",\n      \"email\": \"zamanpranto@gmail.com\",\n      \"telegram_bot_token\": \"7355567307:AAEF9RLs9BWkcVXYzWeawrAUHIA1udi7alM\",\n      \"telegram_chat_id\": \"-4572324459\",\n      \"crm_host\": \"https://portal.lexior.io\",\n      \"created_at\": \"2024-10-15T09:06:54.000000Z\",\n      \"updated_at\": \"2024-10-15T09:06:54.000000Z\"\n    }\n  ],\n  \"data\": {\n    \"id\": 134,\n    \"merchant_number\": \"26\",\n    \"company_name\": \"\",\n    \"url\": \"https://site100.xmastrodem.com\",\n    \"type\": \"Coding\",\n    \"last_run\": null,\n    \"test_user_l1_login\": \"akuja-shopper@site100.xmastrodem.com\",\n    \"test_user_l1_password\": \"f14H4SrJmWAxeHDwwtPd\",\n    \"test_user_l2_login\": \"\",\n    \"test_user_l2_password\": \"\",\n    \"test_user_l3_login\": \"\",\n    \"test_user_l3_password\": \"\",\n    \"site_api_key\": \"E5BF465FF3E7AA1D412DCA6DA94FB6E1\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/async/run",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"async",
+								"run"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{SECRET_KEY}}",
+						"type": "string"
+					}
+				]
+			},
 			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
 				{
 					"listen": "test",
 					"script": {
-						"exec": [
-							"var template = `\r",
-							"<style type=\"text/css\">\r",
-							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
-							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
-							"    .tftable tr {background-color:#ffffff;}\r",
-							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
-							"    .tftable tr:hover {background-color:#e0ffff;}\r",
-							"</style>\r",
-							"\r",
-							"<table class=\"tftable\" border=\"1\">\r",
-							"    <tr>\r",
-							"        <th>ID</th>\r",
-							"        <th>Merchant Number</th>\r",
-							"        <th>Company Name</th>\r",
-							"        <th>URL</th>\r",
-							"        <th>Type</th>\r",
-							"        <th>Test User L1 Login</th>\r",
-							"        <th>Test User L1 Password</th>\r",
-							"        <th>Test User L2 Login</th>\r",
-							"        <th>Test User L2 Password</th>\r",
-							"        <th>Test User L3 Login</th>\r",
-							"        <th>Test User L3 Password</th>\r",
-							"        <th>Site API Key</th>\r",
-							"        <th>Created At</th>\r",
-							"        <th>Last Run</th>\r",
-							"    </tr>\r",
-							"    \r",
-							"    {{#each response.sites}}\r",
-							"        <tr id=row_{{@key}}>\r",
-							"            <td>{{id}}</td>\r",
-							"            <td>{{merchant_number}}</td>\r",
-							"            <td>{{company_name}}</td>\r",
-							"            <td>{{url}}</td>\r",
-							"            <td>{{type}}</td>\r",
-							"            <td>{{test_user_l1_login}}</td>\r",
-							"            <td>{{test_user_l1_password}}</td>\r",
-							"            <td>{{test_user_l2_login}}</td>\r",
-							"            <td>{{test_user_l2_password}}</td>\r",
-							"            <td>{{test_user_l3_login}}</td>\r",
-							"            <td>{{test_user_l3_password}}</td>\r",
-							"            <td>{{site_api_key}}</td>\r",
-							"            <td>{{created_at}}</td>\r",
-							"            <td>{{last_run}}</td>\r",
-							"        </tr>\r",
-							"    {{/each}}\r",
-							"</table>\r",
-							"`;\r",
-							"\r",
-							"function constructVisualizerPayload() {\r",
-							"    return {response: pm.response.json()}\r",
-							"}\r",
-							"\r",
-							"pm.visualizer.set(template, constructVisualizerPayload());"
-						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"exec": [
+							""
+						]
 					}
 				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/view-sites?page=4",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"view-sites"
-					],
-					"query": [
-						{
-							"key": "page",
-							"value": "4"
-						}
-					]
-				}
-			},
-			"response": []
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
 		},
 		{
-			"name": "View Logs",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/latest-logs",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"latest-logs"
-					]
-				}
-			},
-			"response": []
-		},
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
 		{
-			"name": "Refresh Site Key",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/get-sitekey?cookie=9um7ls0ujcev7skhd76jl2orpb",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"get-sitekey"
-					],
-					"query": [
-						{
-							"key": "cookie",
-							"value": "9um7ls0ujcev7skhd76jl2orpb"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Clear Log",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/clear-log",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"clear-log"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Run",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/run",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"run"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add Site",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"merchant_number\": \"3\",\r\n    \"company_name\": \"Test\",\r\n    \"url\": \"https://kotkoti.com\",\r\n    \"type\": \"LMS\",\r\n    \"test_user_l1_login\": \"username@gmail.com\",\r\n    \"test_user_l1_password\": \"password\",\r\n    \"test_user_l2_login\": null,\r\n    \"test_user_l2_password\": null,\r\n    \"test_user_l3_login\": null,\r\n    \"test_user_l3_password\": null\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{host}}/add-site",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"add-site"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete Site",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"id\": 43\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{host}}/delete-site",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"delete-site"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Import Sites",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{SECRET_KEY}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"merchant_number\": \"3\",\r\n    \"company_name\": \"Test\",\r\n    \"url\": \"https://kotkoti.com\",\r\n    \"type\": \"LMS\",\r\n    \"test_user_l1_login\": \"username@gmail.com\",\r\n    \"test_user_l1_password\": \"password\",\r\n    \"test_user_l2_login\": null,\r\n    \"test_user_l2_password\": null,\r\n    \"test_user_l3_login\": null,\r\n    \"test_user_l3_password\": null\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{host}}/import-sites",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"import-sites"
-					]
-				}
-			},
-			"response": []
+			"key": "SECRET_KEY",
+			"value": "AD6F653E8A1232e",
+			"type": "string"
 		}
 	]
 }
