@@ -63,6 +63,19 @@ def start_agents(site_data):
     print("Running test cases on " + merchant_name + " site : " + url)
     # Merge results and prepare for saving
     merged_dict = {**site_row}
+    agent_price_plan = None
+    agent_ui_languages = None
+    agent_iframe_integrity = None
+    agent_signup = None
+    agent_crm = None
+    results_status = None
+    results_crm_plan = None
+    agent_ui_languages = None
+    results_price_plan = None
+    results_iframe_integrity = None
+    results_languages = None
+    results_form = None
+
     try:
         response = requests.get(url)
         results_status = AgentUIDownChecker(merchant_name, url, response).process()
@@ -171,7 +184,52 @@ def start_agents(site_data):
         }}
         merged_dict = {**merged_dict, **{"has_error": True}}
         if client is not None:
-            send_telegram_notification(None, f'!! 𝑰𝒔𝒔𝒖𝒆 𝑭𝒐𝒖𝒏𝒅 !!\n\n URL: {url}', client['telegram_bot_token'],
+            found_issues = ""
+            if results_crm_plan is not None:
+                if agent_crm.has_error:
+                    if "crm_plans_status" in results_crm_plan[0]:
+                        found_issues += f'<blockquote><b>CRM</b> {results_crm_plan[0]["crm_plans_status"]} </blockquote> \n'
+                    else:
+                        found_issues += f'<blockquote><b>CRM</b> Something went wrong in the CRM Plans </blockquote> \n'
+            if results_languages is not None:
+                if agent_ui_languages.has_error:
+                    if "Error" in results_languages[0]:
+                        found_issues += f'<blockquote><b>Languages</b> Could not check languages </blockquote> \n'
+                    else:
+                        found_issues += f'<blockquote><b>Languages</b> Something went wrong in the languages </blockquote> \n'
+
+            if results_languages is not None:
+                if "Language Count" in results_languages[0]:
+                    if results_languages[0]["Language Count"] < 24:
+                        found_issues += f'<blockquote><b>Languages</b> {str(results_languages[0]["Language Count"])} found, 24 should be there </blockquote> \n'
+
+            if results_iframe_integrity is not None:
+                if agent_iframe_integrity.has_error:
+                    if "Iframe_Integrity_Status" in results_iframe_integrity[0]:
+                        found_issues += f'<blockquote><b>IFrame:</b> {str(results_iframe_integrity[0]["Iframe_Integrity_Status"])} </blockquote> \n'
+                    else:
+                        found_issues += f'<blockquote><b>IFrame:</b> Something went wrong in the iframe </blockquote> \n'
+
+            if results_form is not None:
+                if agent_signup.has_error:
+                    if "Error" in results_form[0]:
+                        found_issues += f'<blockquote><b>Forms</b> {str(results_form[0]["Error"])} </blockquote> \n'
+                    else:
+                        found_issues += f'<blockquote><b>Forms</b> Something went wrong </blockquote> \n'
+
+            if results_price_plan is not None:
+                if agent_price_plan.has_error:
+                    if "Error" in results_price_plan[0]:
+                        found_issues += f'<blockquote><b>Price Plan</b> {str(results_price_plan[0]["Error"])} </blockquote> \n'
+                    else:
+                        found_issues += f'<blockquote><b>Price Plan</b> Something went wrong </blockquote> \n'
+
+            found_issues += f'<blockquote><b>Technical</b> {str(e)} </blockquote> \n'
+
+            send_telegram_notification(None,
+                                       f'{str(url).replace(".", "_").replace("https://", "")} \n\n <i>Issues:</i> \n '
+                                       + found_issues
+                                       , client['telegram_bot_token'],
                                        client['telegram_chat_id'])
         return merged_dict
 
@@ -289,6 +347,14 @@ def main():
                     }}
                     merged_dict = {**merged_dict, **{"has_error": True}}
                     log_to_laravel(merged_dict)
+                    if client is not None:
+                        found_issues = f'<blockquote><b>Technical</b> {str(ex)} </blockquote> \n'
+                        send_telegram_notification(None,
+                                                   f'{str(data["url"]).replace(".", "_").replace("https://", "")} \n\n <i>Issues:</i> \n '
+                                                   + found_issues
+                                                   , client['telegram_bot_token'],
+                                                   client['telegram_chat_id'])
+
             except Exception as e:
                 logging.info(e)
                 # logging.info(traceback.extract_tb(e.__traceback__))
