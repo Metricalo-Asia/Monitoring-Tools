@@ -238,7 +238,7 @@ def start_agents(site_data):
 
 
 async def get_sitekeys(sites, cookie, crmhost, pagenum=1):
-    url = f"{crmhost}/administrator/app/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D={pagenum}&filter%5B_per_page%5D=192"
+    url = f"{crmhost}/administrator/bundles/subscription/service/list?tl=en&filter%5B_sort_order%5D=DESC&filter%5B_page%5D={pagenum}&filter%5B_per_page%5D=192"
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
