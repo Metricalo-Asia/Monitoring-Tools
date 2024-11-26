@@ -84,7 +84,7 @@ def start_agents(site_data):
             merged_dict = {**site_row, **results_status[0]}
             merged_dict = {**merged_dict, **{"has_error": True}}
             if client is not None:
-                found_issues = "";
+                found_issues = ""
                 if "Status" in results_status[0]:
                     found_issues += f'<blockquote><b>Webshop</b> {results_status[0]["Status"]}  </blockquote> \n'
                 else:
